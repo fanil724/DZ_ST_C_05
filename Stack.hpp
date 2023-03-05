@@ -72,20 +72,23 @@ public:
     }
 
     void pop(size_t index) {
-        size_--;
+
         if (index == 0) {
             first_node_ = std::move(*first_node_.next);
+            size_--;
             return;
         }
         NodeStackPtr node = get(index - 1);
         if (index == size_) {
             delete node->next;
             last_node_ = node;
+            size_--;
             return;
         }
         NodeStackPtr todelete = node->next;
         node->next = node->next->next;
         delete todelete;
+        size_--;
     }
 
     T &operator[](size_t index) {
@@ -110,12 +113,10 @@ public:
         }
         std::cout << std::endl;
     }
-
     NodeStack &CloneList(StackList<T> &another) {
-        for (int i = size_ - 1; i > 0; i--) {
+        for (int i = size_; i > 0; i--) {
             pop(i);
         }
-        first_node_.value = another.first_node_.value;
         NodeStackPtr anoth{&another.first_node_};
         NodeStackPtr current{anoth->next};
         while (current != another.last_node_->next) {
@@ -133,7 +134,6 @@ public:
         }
         return first_node_;
     }
-
     NodeStack &operator*(StackList<T> &another) {
         for (int i = 0; i < size_; i++) {
             if (!is_equal(get(i)->value, another)) {

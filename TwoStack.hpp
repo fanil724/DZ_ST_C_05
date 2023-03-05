@@ -1,6 +1,7 @@
 #ifndef TWOSTACK_H
 #define TWOSTACK_H
 
+
 template<typename T>
 class StackList2 {
 public:
@@ -15,6 +16,7 @@ public:
         NodeStack(T value) {
             this->value = std::move(value);
             next = nullptr;
+            previous = nullptr;
         }
 
         NodeStack(T value, NodeStackPtr next) {
@@ -61,32 +63,47 @@ public:
     }
 
     void add(T value) {
+        NodeStackPtr temp = last_node_;
         last_node_->next = new NodeStack(std::move(value));
         last_node_ = last_node_->next;
+        last_node_->previous = temp;
         size_++;
     }
 
     void insert(T value, size_t index) {
         NodeStackPtr current = get(index);
-        *current = NodeStack(value, new NodeStack(std::move(*current)));
+        NodeStackPtr node = new NodeStack(value);
+        NodeStackPtr temp = current->previous;
+        current->previous = node;
+        node->next = current;
+        temp->next = node;
+        node->previous = temp;
         size_++;
     }
 
     void pop(size_t index) {
-        size_--;
         if (index == 0) {
-            first_node_ = std::move(*first_node_.next);
+            NodeStackPtr todelete = &first_node_;
+            todelete = todelete->next;
+            todelete->previous = nullptr;
+            first_node_ = *todelete;
+            size_--;
             return;
         }
         NodeStackPtr node = get(index - 1);
         if (index == size_) {
-            delete node->next;
+            node->next = nullptr;
             last_node_ = node;
+            size_--;
             return;
+        } else {
+            NodeStackPtr todelete = node->next;
+            node->next = node->next->next;
+            node = node->next;
+            node->previous = node->previous->previous;
+            delete todelete;
+            size_--;
         }
-        NodeStackPtr todelete = node->next;
-        node->next = node->next->next;
-        delete todelete;
     }
 
     T &operator[](size_t index) {
@@ -102,6 +119,7 @@ public:
         return false;
     }
 
+
     void print() {
         std::cout << "Size:" << size_ << std::endl;
         NodeStackPtr current = &first_node_;
@@ -112,11 +130,20 @@ public:
         std::cout << std::endl;
     }
 
-    NodeStack &CloneList(StackList<T> &another) {
-        for (int i = size_ - 1; i > 0; i--) {
+    void printreverse() {
+        std::cout << "Size:" << size_ << std::endl;
+        NodeStackPtr current = last_node_;
+        while (current != nullptr) {
+            std::cout << current->value << " ";
+            current = current->previous;
+        }
+        std::cout << std::endl;
+    }
+
+    NodeStack &CloneList(StackList2<T> &another) {
+        for (int i = size_; i > 0; i--) {
             pop(i);
         }
-        first_node_.value = another.first_node_.value;
         NodeStackPtr anoth{&another.first_node_};
         NodeStackPtr current{anoth->next};
         while (current != another.last_node_->next) {
@@ -147,6 +174,16 @@ public:
         }
     }
 
+    friend ::std::ostream &operator<<(std::ostream &out, StackList2<T> &st) {
+        NodeStackPtr current = &st.first_node_;
+        while (current != nullptr) {
+            out << current->value << " ";
+            current = current->next;
+        }
+        out << std::endl;
+        return out;
+    }
+
 private:
     size_t size_ = 0;
     NodeStack first_node_;
@@ -163,6 +200,8 @@ private:
         }
         return current;
     }
+
 };
+
 
 #endif //TWOSTACK_H
