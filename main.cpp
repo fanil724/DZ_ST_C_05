@@ -16,7 +16,7 @@ int main() {
 //    s.print();
 
 //задание 2
-    StackList2<int> srt({1, 2, 3, 6, 1, 23, 65});
+ //   StackList2<int> srt({1, 2, 3, 6, 1, 23, 65});
 //    srt.print();
 //    srt.insert(10,3);
 //    srt.print();
@@ -28,15 +28,22 @@ int main() {
 //    srt.print();
 //    srt.printreverse();
 
+//задание 4
+//    Database base;
+//    base.Add(56413);
+//    base.Add(53);
+//    base.Add(59633);
+//    base.Add(5643);
+//    base.Add(563);
+//    base.Add(58573);
+//    base.PrintAll(base.ReturnRoot(), 10);
+
 //задание 3
-    Database base;
-    base.Add(56413);
-    base.Add(53);
-    base.Add(59633);
-    base.Add(5643);
-    base.Add(563);
-    base.Add(58573);
-    base.PrintAll(base.ReturnRoot(), 10);
-
-
+    Array<int> ar(5);
+    ar.Add(45);
+    ar.Add(43245);
+    ar.Add(4234565);
+    ar.Add(4521);
+    ar.Add(4511);
+    std::cout << ar;
 }
