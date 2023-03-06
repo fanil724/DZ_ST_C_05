@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Stack.hpp"
 #include "TwoStack.hpp"
+#include "Police_base.hpp"
+#include "Array.hpp"
 
 int main() {
     //задание 1
@@ -17,12 +19,24 @@ int main() {
     StackList2<int> srt({1, 2, 3, 6, 1, 23, 65});
 //    srt.print();
 //    srt.insert(10,3);
-    srt.print();
-    srt.printreverse();
-    StackList2<int> st({1, 56, 3, 4, 9, 16, 4, 94, 16, 1, 64, 46, 16, 36, 45});
-    st.print();
-    st.printreverse();
-    srt.CloneList(st);
-    srt.print();
-    srt.printreverse();
+//    srt.print();
+//    srt.printreverse();
+//    StackList2<int> st({1, 56, 3, 4, 9, 16, 4, 94, 16, 1, 64, 46, 16, 36, 45});
+//    st.print();
+//    st.printreverse();
+//    srt.CloneList(st);
+//    srt.print();
+//    srt.printreverse();
+
+//задание 3
+    Database base;
+    base.Add(56413);
+    base.Add(53);
+    base.Add(59633);
+    base.Add(5643);
+    base.Add(563);
+    base.Add(58573);
+    base.PrintAll(base.ReturnRoot(), 10);
+
+
 }
