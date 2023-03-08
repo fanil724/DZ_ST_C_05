@@ -16,7 +16,7 @@ int main() {
 //    s.print();
 
 //задание 2
- //   StackList2<int> srt({1, 2, 3, 6, 1, 23, 65});
+    //   StackList2<int> srt({1, 2, 3, 6, 1, 23, 65});
 //    srt.print();
 //    srt.insert(10,3);
 //    srt.print();
@@ -45,5 +45,13 @@ int main() {
     ar.Add(4234565);
     ar.Add(4521);
     ar.Add(4511);
+    ar.Add(987);
+    ar.Add(357);
+
+    std::cout << ar.GetSize()<<std::endl;
+    std::cout << ar.GetUpperBound()<<std::endl;
+
     std::cout << ar;
+
+
 }

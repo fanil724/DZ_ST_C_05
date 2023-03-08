@@ -13,41 +13,26 @@ public:
         NodeStackPtr previous = nullptr;
         NodeStackPtr next = nullptr;
 
-        NodeStack(T value_, NodeStackPtr previous_, NodeStackPtr next_)
-                : value(value_), previous(previous_), next(next_) {}
-
-        NodeStack(const NodeStack &another)
-                : NodeStack(another.value, another.previous, another.next) {}
-
-        NodeStack &operator=(const NodeStack &another) {
-            if (&another == this)
-                return *this;
-            NodeStack copy(another);
-            std::swap(value, copy.value);
-            std::swap(previous, copy.previous);
-            std::swap(next, copy.next);
-            return *this;
-        };
     };
 
+    Array(size_t size) : count_(0), size_(size), array_(new NodeStack[size_]) {}
 
-    Array(size_t size) : count_(0), size_(size), array_(new NodeStack[size]{}) {}
-
-    T *realocate(T arr[], size_t size, size_t new_size) {
-        T *ar = new T[new_size];
-        for (int i = 0; i < std::min(new_size, size); i++) {
-            ar[i] = arr[i];
+    void realocate(size_t new_size) {
+        Array<T> ar(new_size);
+        for (int i = 0; i < std::min(new_size, size_); i++) {
+            ar.Add(GetAt(i));
         }
-        delete[] arr;
-        return ar;
+        delete[] array_;
+        array_ = ar.array_;
+        size_ = new_size;
     }
 
     void SetSize(size_t size, size_t grow = 1) {
         if (size > size_) {
-            realocate(array_, size_, size_ + grow);
+            realocate(size_ + grow);
             size_ += grow;
         } else {
-            realocate(array_, size_, size);
+            realocate(size);
             size_ = size;
         }
     }
@@ -61,16 +46,27 @@ public:
         Array copy(another);
         std::swap(count_, copy.count_);
         std::swap(size_, copy.size_);
-        std::swap(array_, copy.pointer_);
+        std::swap(array_, copy.array_);
         return *this;
     }
 
+    Array(Array &&another) noexcept = default;
+
+    ~Array() {
+        NodeStackPtr current = array_;
+        while (current != nullptr) {
+            NodeStackPtr next = current->next;
+            delete current;
+            current = next;
+        }
+    }
+
     void FreeExtra() {
-        realocate(array_, size_, count_);
+        realocate(count_);
     }
 
     void RemoveAll() {
-        realocate(array_, size_, 0);
+        realocate(0);
         count_ = 0;
         size_ = 0;
     }
@@ -88,25 +84,41 @@ public:
     }
 
     T &GetAt(size_t index) {
-        return array_[index];
+        return get(index)->value;
     }
 
     void SetAt(size_t index, T value) {
-        array_[index] = value;
+        GetAt(index) = value;
     }
 
     void Add(T value) {
         if (count_ == 0) {
-            SetAt(0, value);
+            array_->value = value;
             count_++;
         } else if (count_ <= size_) {
-            SetAt(count_ + 1, value);
-            array_[count_ + 1].previous = &array_[count_];
+            array_[count_ - 1].next = &array_[count_];
+            array_[count_].value = value;
+            array_[count_].previous = &array_[count_ - 1];
             count_++;
         } else {
             SetSize(size_);
-            SetAt(count_ + 1, value);
+            array_[count_ - 1].next = &array_[count_];
+            array_[count_].value = value;
+            array_[count_].previous = &array_[count_ - 1];
             count_++;
+        }
+    }
+
+    void Append(Array<T> &ar) {
+        if ((count_ + ar.count_) > size_) {
+            realocate(count_ + ar.count_);
+            for (int i=0;i<ar.count_;i++) {
+                Add(ar.GetAt(i));
+            }
+        }else{
+            for (int i=0;i<ar.count_;i++) {
+                Add(ar.GetAt(i));
+            }
         }
     }
 
@@ -114,6 +126,10 @@ public:
         if (count_ == 0)
             return true;
         return false;
+    }
+
+    void GetData() {
+        std::cout << &array_;
     }
 
     friend ::std::ostream &operator<<(std::ostream &out, Array<T> &st) {
@@ -132,7 +148,7 @@ private:
     NodeStack *array_;
 
     NodeStackPtr get(size_t index) {
-        NodeStackPtr current{&array_};
+        NodeStackPtr current{array_};
         size_t count = 0;
         while (count != index) {
             if (current == nullptr)
