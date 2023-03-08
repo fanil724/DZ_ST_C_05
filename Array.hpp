@@ -1,6 +1,7 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+#include <utility>
 
 template<typename T>
 class Array {
@@ -12,17 +13,45 @@ public:
         T value;
         NodeStackPtr previous = nullptr;
         NodeStackPtr next = nullptr;
-
     };
 
     Array(size_t size) : count_(0), size_(size), array_(new NodeStack[size_]) {}
+
+    Array(const Array &another)
+            : Array(another.size()) {}
+
+    Array &operator=(const Array &another) {
+        if (&another == this)
+            return *this;
+        Array copy(another);
+        std::swap(size_, copy.size_);
+        std::swap(count_, copy.count_);
+        std::swap(array_, copy.array_);
+        return *this;
+    }
+
+    Array(Array &&another) noexcept
+            : size_(std::exchange(another.size_, 0ull)),
+              count_(std::exchange(another.count_, 0ull)),
+              array_(std::exchange(another.array_, nullptr)) {}
+
+    Array &operator=(Array &&another) noexcept {
+        if (&another == this)
+            return *this;
+        delete[] array_;
+        count_ = std::exchange(another.count_, 0ull);
+        size_ = std::exchange(another.size_, 0ull);
+        array_ = std::exchange(another.array_, nullptr);
+
+        return *this;
+    }
 
     void realocate(size_t new_size) {
         Array<T> ar(new_size);
         for (int i = 0; i < std::min(new_size, size_); i++) {
             ar.Add(GetAt(i));
         }
-        delete[] array_;
+        delete[]   array_;
         array_ = ar.array_;
         size_ = new_size;
     }
@@ -37,28 +66,9 @@ public:
         }
     }
 
-    Array(const Array &another)
-            : Array(another.array_, another.GetSize(), another.GetUpperBound()) {}
-
-    Array &operator=(const Array &another) {
-        if (&another == this)
-            return *this;
-        Array copy(another);
-        std::swap(count_, copy.count_);
-        std::swap(size_, copy.size_);
-        std::swap(array_, copy.array_);
-        return *this;
-    }
-
-    Array(Array &&another) noexcept = default;
 
     ~Array() {
-        NodeStackPtr current = array_;
-        while (current != nullptr) {
-            NodeStackPtr next = current->next;
-            delete current;
-            current = next;
-        }
+        delete[] array_;
     }
 
     void FreeExtra() {
@@ -112,13 +122,35 @@ public:
     void Append(Array<T> &ar) {
         if ((count_ + ar.count_) > size_) {
             realocate(count_ + ar.count_);
-            for (int i=0;i<ar.count_;i++) {
+            for (int i = 0; i < ar.count_; i++) {
                 Add(ar.GetAt(i));
             }
-        }else{
-            for (int i=0;i<ar.count_;i++) {
+        } else {
+            for (int i = 0; i < ar.count_; i++) {
                 Add(ar.GetAt(i));
             }
+        }
+    }
+
+    void InsertAt(size_t index, T value) {
+        if (index > count_) {
+            Add(value);
+        } else if (index < count_) {
+            Add(value);
+            for (int i = index; index < count_; i++) {
+                std::swap(array_[i], array_[i + 1]);
+            }
+        }
+    }
+
+    void RemoveAt(size_t index) {
+        if (index == count_) {
+            FreeExtra(index);
+        } else {
+            for (int i = index; index < count_; i++) {
+                std::swap(array_[i], array_[i + 1]);
+            }
+            FreeExtra(count_ - 1);
         }
     }
 
@@ -145,7 +177,7 @@ public:
 private:
     size_t count_;
     size_t size_;
-    NodeStack *array_;
+    NodeStackPtr array_;
 
     NodeStackPtr get(size_t index) {
         NodeStackPtr current{array_};
