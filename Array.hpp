@@ -46,22 +46,12 @@ public:
         return *this;
     }
 
-    void realocate(size_t new_size) {
-        Array<T> ar(new_size);
-        for (int i = 0; i < std::min(new_size, size_); i++) {
-            ar.Add(GetAt(i));
-        }
-        delete[]   array_;
-        array_ = ar.array_;
-        size_ = new_size;
-    }
-
     void SetSize(size_t size, size_t grow = 1) {
         if (size > size_) {
-            realocate(size_ + grow);
+            realloc(array_, size_ + grow);
             size_ += grow;
         } else {
-            realocate(size);
+            realloc(array_, size);
             size_ = size;
         }
     }
@@ -72,11 +62,11 @@ public:
     }
 
     void FreeExtra() {
-        realocate(count_);
+        realloc(array_, count_);
     }
 
     void RemoveAll() {
-        realocate(0);
+        realloc(array_, 0);
         count_ = 0;
         size_ = 0;
     }
@@ -121,7 +111,7 @@ public:
 
     void Append(Array<T> &ar) {
         if ((count_ + ar.count_) > size_) {
-            realocate(count_ + ar.count_);
+            realloc(array_,count_ + ar.count_);
             for (int i = 0; i < ar.count_; i++) {
                 Add(ar.GetAt(i));
             }
@@ -178,7 +168,6 @@ private:
     size_t count_;
     size_t size_;
     NodeStackPtr array_;
-
     NodeStackPtr get(size_t index) {
         NodeStackPtr current{array_};
         size_t count = 0;

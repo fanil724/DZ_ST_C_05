@@ -71,6 +71,7 @@ public:
     }
 
     void insert(T value, size_t index) {
+
         NodeStackPtr current = get(index);
         NodeStackPtr node = new NodeStack(value);
         NodeStackPtr temp = current->previous;

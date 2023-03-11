@@ -2,7 +2,7 @@
 #include "Stack.hpp"
 #include "TwoStack.hpp"
 #include "Police_base.hpp"
-#include "Array.hpp"
+#include "ArrayTwo.hpp"
 
 int main() {
     //задание 1
@@ -39,19 +39,30 @@ int main() {
 //    base.PrintAll(base.ReturnRoot(), 10);
 
 //задание 3
-    Array<int> ar(5);
+    ArrayTwo<int> ar(5);
     ar.Add(45);
     ar.Add(43245);
     ar.Add(4234565);
     ar.Add(4521);
     ar.Add(4511);
-//    ar.Add(987);
-//    ar.Add(357);
-    ar.SetAt(3, 65);
-    std::cout << ar.GetSize() << std::endl;
-    std::cout << ar.GetUpperBound() << std::endl;
+    ar.Add(987);
+    ar.Add(357);
+
+    ArrayTwo<int> arr(5);
+    arr.Add(45);
+    arr.Add(43245);
+    arr.Add(4234565);
+    arr.Add(629);
+    arr.Add(639);
+    arr.Add(169);
 
     std::cout << ar;
-
+    std::cout << arr;
+    ar.Append(arr);
+    std::cout << ar.GetSize() << std::endl;
+    std::cout << ar;
+    arr = ar;
+    std::cout << arr;
+    std::cout << ar;
 
 }
